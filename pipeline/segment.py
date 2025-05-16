@@ -1,7 +1,6 @@
 from ultralytics import YOLO
-from PIL import Image
-import os
 from utils.image_loader import load_image
+from utils.preprocess import mobile_preprocess
 import pandas as pd
 from utils.global_var import YOLO_MODEL_PATH
 
@@ -12,8 +11,10 @@ def load_yolo():
         model = YOLO(YOLO_MODEL_PATH)
     return model
 
-def segment_image(image_path):
+def segment_image(image_path,type):
     image = load_image(image_path)
+    if type == "mobile":
+        image = mobile_preprocess(image)
     w, h = image.size
     model = load_yolo()
     results = model.predict(image_path, imgsz=640, conf=0.25, verbose=False)

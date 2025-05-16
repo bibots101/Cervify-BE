@@ -1,11 +1,10 @@
 import joblib
 import numpy as np
-import pandas as pd
 from utils.global_var import SVM_CLASSIFIER, SCALER_SVM
 from utils.extract_utils import normalize_features
 
-svm_model = joblib.load(SVM_CLASSIFIER)
-scaler = joblib.load(SCALER_SVM)
+svm_model = None
+scaler = None
 
 id_to_label = {
     0: "NILM",
@@ -13,7 +12,16 @@ id_to_label = {
     2: "Other"
 }
 
+def load_models():
+    global svm_model
+    global scaler
+    if svm_model is None:
+        svm_model = joblib.load(SVM_CLASSIFIER)
+    if scaler is None:
+        scaler = joblib.load(SCALER_SVM)
+    return svm_model,scaler
 def classify_svm(image_name, features_df, segmentation_df):
+    svm_model,scaler = load_models()
     X = normalize_features(features_df, scaler)
     probs = svm_model.predict_proba(X)
     preds = np.argmax(probs, axis=1)

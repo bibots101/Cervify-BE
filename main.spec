@@ -3,8 +3,8 @@
 a = Analysis(
     ['main.py'],
     pathex=[
-        'C:/Users/wassi/Desktop/cervify_build/backend',
-        'C:/Users/wassi/Desktop/cervify_build/backend/external/dinov2/'
+        '.',
+        './external/dinov2/'
     ],
     binaries=[],
     datas=[
@@ -14,7 +14,7 @@ a = Analysis(
         ('models/SVM/pca_model.joblib', 'models/SVM'),
         ('models/SVM/svm_scaler.joblib', 'models/SVM'),
         ('models/SVM/svm_model.joblib', 'models/SVM'),
-        ('models/mlp/mlp_model.h5', 'models/mlp'),
+        ('models/mlp/mlp_model.keras', 'models/mlp'),
         ('models/mlp/pca_model.joblib', 'models/mlp'),
         ('models/mlp/scaler_pca.joblib', 'models/mlp'),
         ('models/mlp/scaler_classifer.joblib', 'models/mlp'),
@@ -30,10 +30,11 @@ a = Analysis(
         'dinov2.models',
         'dinov2.hub',
         'dinov2.utils',
-        'dinov2.evaluation',
-        'dinov2.evaluation.evaluator',
-        ],
-    hookspath=['./hooks'],
+        'click', 
+        'six', 
+        'charset_normalizer'
+    ],
+    hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=['pytest', 'pyinstaller', 'PyQt5'],
@@ -46,20 +47,26 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
-    name='main',
+    exclude_binaries=True,
+    name='Cervify_backend',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='Cervify_backend',
 )

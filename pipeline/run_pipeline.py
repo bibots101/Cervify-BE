@@ -15,11 +15,12 @@ from utils.global_var import SCALER_PCA_3CLASSES, PCA_MODEL_3CLASSES
 warnings.filterwarnings("ignore", category=UserWarning)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-def run_pipeline(image_path):
+def run_pipeline(image_path,type):
     image_name = os.path.splitext(os.path.basename(image_path))[0]
 
     set_progress(image_name, "Segmenting image...", 10)
-    segment_df = segment_image(image_path)
+    
+    segment_df = segment_image(image_path,type)
     if segment_df.empty:
         set_progress(image_name, "Segmentation failed.", 10)
         return pd.DataFrame()

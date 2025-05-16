@@ -1,9 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Request,BackgroundTasks
 from fastapi.responses import JSONResponse,FileResponse
-import shutil
 import os
-import pandas as pd
-from datetime import datetime
 import uvicorn
 import sys
 from pipeline.run_pipeline import run_pipeline
@@ -14,11 +11,10 @@ from fastapi.staticfiles import StaticFiles
 from utils.progress_tracker import clear_progress,get_progress
 import asyncio
 import traceback
-import io
 from utils.image_encryption import load_key,save_encrypted_image
 from cryptography.fernet import Fernet
 import tempfile
-
+import charset_normalizer
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -101,7 +97,7 @@ async def login(username: str = Form(...), password: str = Form(...)):
         raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...), username: str = Form(...)):
+async def predict(file: UploadFile = File(...), username: str = Form(...), type: str = Form(...)):
     try:
         db = SessionLocal()
         user = db.query(User).filter(User.username == username).first()
@@ -119,14 +115,14 @@ async def predict(file: UploadFile = File(...), username: str = Form(...)):
         image_path = f"data/images/{encrypted_filename}"
 
         save_encrypted_image(image_bytes, encrypted_filename)
-
-
+        
         clear_progress(image_name)
         if not os.path.exists("tmp"):
             os.makedirs("tmp",exist_ok=True)
         with open(f"tmp/{file.filename}", "wb") as temp_img:
             temp_img.write(image_bytes)
-        final_df = await asyncio.to_thread(run_pipeline, f"tmp/{file.filename}")
+        
+        final_df = await asyncio.to_thread(run_pipeline, f"tmp/{file.filename}",type)
 
         if final_df is None or final_df.empty:
             return JSONResponse(

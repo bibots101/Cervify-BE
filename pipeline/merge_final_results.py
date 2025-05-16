@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-
 def merge_final_results(image_name, svm_df, mlp_df):
     os.makedirs("data/debug", exist_ok=True)
     final_path = f"data/debug/{image_name}.csv"

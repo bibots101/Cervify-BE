@@ -3,12 +3,23 @@ import numpy as np
 import pandas as pd
 from utils.extract_utils import load_data, normalize_features
 
+
+pca_model = None
+scaler = None
+
+def load_models(pca_model_path,scaler_path):
+    global pca_model
+    global scaler
+    if pca_model is None:
+        pca_model = joblib.load(pca_model_path)
+    if scaler is None:
+        scaler = joblib.load(scaler_path)
+    return pca_model,scaler
 def reduce_with_pca(features: np.ndarray, pca_model) -> np.ndarray:
     return pca_model.transform(features)
 
 def reduce_features(pca_model_path, scaler_path, features_df: pd.DataFrame) -> pd.DataFrame:
-    pca_model = joblib.load(pca_model_path)
-    scaler = joblib.load(scaler_path)
+    pca_model,scaler = load_models(pca_model_path,scaler_path)
 
     features, handcrafted = load_data(features_df)
     normalized = normalize_features(features, scaler)

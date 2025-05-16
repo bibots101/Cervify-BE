@@ -10,8 +10,9 @@ import logging
 
 logging.getLogger('torch').setLevel(logging.ERROR)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 _model = None
+device = None
 
 transform = transforms.Compose([
     transforms.Resize((518, 518), interpolation=TF.InterpolationMode.BICUBIC),
@@ -22,6 +23,9 @@ transform = transforms.Compose([
 
 def get_dino_model():
     global _model
+    global device
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if _model is None:
         model = torch.load(DINO_MODEL_PATH, map_location=device)
         model.eval().to(device)
@@ -50,9 +54,12 @@ def extract_handcrafted_features(crop):
             round(r_mean, 2), round(g_mean, 2), round(b_mean, 2)]
 
 def extract_dino_features(crop):
+    global device
+    global _model
+    _model = get_dino_model()
     crop_tensor = transform(crop).unsqueeze(0).to(device)
     with torch.no_grad():
-        features = get_dino_model()(crop_tensor).cpu().numpy().flatten()
+        features = _model(crop_tensor).cpu().numpy().flatten()
     return features
 
 def extract_features(image_path, segment_df):
