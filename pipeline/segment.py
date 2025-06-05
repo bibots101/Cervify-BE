@@ -3,6 +3,7 @@ from utils.image_loader import load_image
 from utils.preprocess import mobile_preprocess
 import pandas as pd
 from utils.global_var import YOLO_MODEL_PATH
+from PIL import Image
 
 model = None
 def load_yolo():
@@ -15,9 +16,13 @@ def segment_image(image_path,type):
     image = load_image(image_path)
     if type == "mobile":
         image = mobile_preprocess(image)
+        image = Image.fromarray(image)
     w, h = image.size
     model = load_yolo()
-    results = model.predict(image_path, imgsz=640, conf=0.25, verbose=False)
+    if type == "mobile":
+        results = model.predict(image, imgsz=640, conf=0.05, verbose=False)
+    else:
+        results = model.predict(image, imgsz=640, conf=0.20, verbose=False)
     r = results[0] if isinstance(results, list) else results
     boxes = r.boxes.xyxy.cpu().numpy()
     scores = r.boxes.conf.cpu().numpy()

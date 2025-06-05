@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 
 def mobile_preprocess(image):
-    img = remove_border(image)
+    img = np.array(image)
+    img = remove_border(img)
     img = edge_enhancement(img)
     img = denoise(img)
     img = apply_sharpening(img)
